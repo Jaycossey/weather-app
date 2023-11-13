@@ -1,9 +1,9 @@
 /* GLOBALS ---------------------------------------------------*/
 :root {
-    --aqua: aquamarine;
-    --light-blue: #58D4F8;
+    --aqua: #468CA1;
+    --light-blue: #57D3F8;
     --blue: #14C2F6;
-    --font-color: #213F48;
+    --font-color: #0A2933;
 }
 
 body {

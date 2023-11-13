@@ -26,36 +26,47 @@ const ICON_CLASS_LIST = {
         temperature: "fa-temperature-half"
     };
 
+$( function() {
+    let availableSearchTags = [
+        "Mars",
+        "London",
+        "Berlin",
+        "Tokyo",
+        "Johannesburg",
+        "Washington",
+        "Paris",
+        ""
+    ];
+    $('#tags').autocomplete({
+        source: availableSearchTags
+    });
+});
 
 // PLANNING --------------------------------------------
 
 /**
  * What does this script need to do? 
  * I need to change 'local' li element to display an icon of current local weather
- *  -- using font awesome classes, I need to create an array to store the classnames
- *          - sun: fa-sun
- *          - moon: fa-moon
- *          - day rain: fa-cloud-sun-rain
- *          - rain: fa-cloud-rain
- *          - heavy rain: fa-showers-heavy
- *          - night rain: fa-cloud-moon-rain
- *          - night cloud: fa-cloud-moon
- *          - storm: fa-cloud-bolt
- *          - tornado: fa-tornado
- *          - flood warning: fa-cloud-showers-water
- *          - snoew: fa-snowflake
- *          - fog: fa-smog
- *          - hurricane: fa-hurricane
- *          - 
- *          - temperature icon: fa-temperature-half
- * I need to change 'title' li to display "Weather App" in searched local language -- NOT IMPORTANT BUT A FUN FEATURE
- * 
+
  * I need to call the api for OpenWeather
  * I need to call the api for Mars weather using NASA api's
  * 
  */
 
 // API CALL --------------------------------------------
+
+// how to approach this? 
+// I need to create a variable to store this data 
+/**
+ * I need the search bar to have a "submit" event listener to handle the 
+ * calls for different cities. I have the auto complete already.
+ * I need to add previous searches to the autocomplete, store those strings in
+ * localstorage
+ * 
+ * I need to setup a display to hold each part of the data
+ * 
+ */
+
 
 
 // MARS WEATHER API CALL -------------------------------
@@ -89,3 +100,9 @@ displayDateTime(navTime, "time");
 
 
 // FUNCTIONS TO DISPLAY DATA ---------------------------
+
+// display local weather
+function displayWeather(location, screenPosition) {
+    let newDiv = document.createElement('div');
+}
+
