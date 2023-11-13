@@ -55,20 +55,25 @@ $( function() {
  */
 
 // API CALL --------------------------------------------
+async function fetchWeather() {
+    const apiUrl = "https://api.openweathermap.org/data/3.0/onecall?lat={lat}&lon={lon}&exclude={part}&appid={API key}";
+    
+    // fetch data from API
+    fetch(apiUrl)
+        .then((response) => {
+            // handle response 
+            console.log(response.json());
+            return response.json();
+        })
+        .then((data) {
+            // handle error
+            console.log(data);
+        })
+        .catch(function(error) {
+            console.log(error);
+        });
 
-// how to approach this? 
-// I need to create a variable to store this data 
-/**
- * I need the search bar to have a "submit" event listener to handle the 
- * calls for different cities. I have the auto complete already.
- * I need to add previous searches to the autocomplete, store those strings in
- * localstorage
- * 
- * I need to setup a display to hold each part of the data
- * 
- */
-
-
+}
 
 // MARS WEATHER API CALL -------------------------------
 
@@ -111,22 +116,29 @@ let widgetArray = [];
 class WeatherWidget {
     // constructor to assign with new keyword
     constructor(location, temperature, wind, humidity) {
-        this.location = location,
-        this.temperature = temperature,
-        this.wind = wind,
-        this.humidity = humidity
+        // create widget element
+        this.element = document.createElement('div');
+        this.element.className = "widget";
+
+        // create widget children
+        this.locEl = document.createElement('p');
+        this.tempEl = document.createElement('p');
+        this.windEl = document.createElement('p');
+        this.humEl = document.createElement('p');
+    
+        // assign text values
+        this.locEl.textContent = location;
+        this.tempEl.textContent = temperature;
+        this.windEl.textContent = wind;
+        this.humEl.textContent = humidity;
+
+        // append to parent
+        this.element.append(this.locEl, this.tempEl, this.windEl, this.humEl);
+
+        // return completed element
+        return this.element;
     }
 
-    // create the element here
-    renderWidget() {
-        // This is proving an issue, I want to be able to dynamically 
-        // create an element which holds the data above, How do I create
-        // an element here which doesnt show [object][object]
-        // read into constructors more.
-
-        // return element with data
-        return widget;
-    }
 }
 
 // function to call new widget
@@ -135,6 +147,7 @@ function createWidget(location) {
     let widget = new WeatherWidget(location, 10, "10kph", "84%");
     // store in array
     widgetArray.push(widget);
+    // console.log(widget);
     // return element 
     return widget;
 }
@@ -158,6 +171,7 @@ function displayWeather(screenPosition) {
         // append div to container
         localWeatherContainer.appendChild(newDiv);
     } else {
+        newDiv.append(createWidget("Mars"));
         searchedWeatherContainer.appendChild(newDiv);
     }
 }
