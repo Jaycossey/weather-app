@@ -26,6 +26,7 @@ const ICON_CLASS_LIST = {
         temperature: "fa-temperature-half"
     };
 
+// function to handle auto complete
 $( function() {
     let availableSearchTags = [
         "Mars",
@@ -35,7 +36,7 @@ $( function() {
         "Johannesburg",
         "Washington",
         "Paris",
-        ""
+        "Seoul"
     ];
     $('#tags').autocomplete({
         source: availableSearchTags
@@ -76,9 +77,10 @@ $( function() {
 
 // function to retrieve current date and time
 function getCurrentDate(format) {
+    // create data for date and time
     let date = dayjs().format('dddd DD/MM/YYYY');
     let time = dayjs().format('HH:MM:ss a');;
-
+    // return respective of format
     if (format === "date") {
         return date;
     } else {
@@ -88,8 +90,9 @@ function getCurrentDate(format) {
 
 // Display date and time function 
 function displayDateTime(element, format) {
+    // update time every second
     setInterval(() => {
-        element.text(getCurrentDate(format)); // SETS INFINITE LOOP
+        element.text(getCurrentDate(format));
     });
 }
 
@@ -101,8 +104,64 @@ displayDateTime(navTime, "time");
 
 // FUNCTIONS TO DISPLAY DATA ---------------------------
 
-// display local weather
-function displayWeather(location, screenPosition) {
-    let newDiv = document.createElement('div');
+// array to store weather data
+let widgetArray = [];
+
+// lets show off OOP a bit as well. create constructor
+class WeatherWidget {
+    // constructor to assign with new keyword
+    constructor(location, temperature, wind, humidity) {
+        this.location = location,
+        this.temperature = temperature,
+        this.wind = wind,
+        this.humidity = humidity
+    }
+
+    // create the element here
+    renderWidget() {
+        // This is proving an issue, I want to be able to dynamically 
+        // create an element which holds the data above, How do I create
+        // an element here which doesnt show [object][object]
+        // read into constructors more.
+
+        // return element with data
+        return widget;
+    }
 }
 
+// function to call new widget
+function createWidget(location) {
+    // new widget with data as args
+    let widget = new WeatherWidget(location, 10, "10kph", "84%");
+    // store in array
+    widgetArray.push(widget);
+    // return element 
+    return widget;
+}
+
+// display local weather
+function displayWeather(screenPosition) {
+    // create container to hold the widgets
+    let newDiv = document.createElement('div');
+    newDiv.style.height = "320px";
+    newDiv.style.width = "90%";
+    newDiv.style.border = "2px solid red";
+    newDiv.style.borderRadius = "20px";
+    newDiv.style.margin = "auto";
+    newDiv.style.marginTop = "15px";
+    newDiv.style.backgroundColor = "#3A9E91";
+    
+    // determine if local weather or searched weather
+    if (screenPosition === "local") {
+        // append the widget to parent div
+        newDiv.append(createWidget("London"));
+        // append div to container
+        localWeatherContainer.appendChild(newDiv);
+    } else {
+        searchedWeatherContainer.appendChild(newDiv);
+    }
+}
+
+displayWeather("local");
+displayWeather("searched");
+console.log(widgetArray);
