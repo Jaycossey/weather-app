@@ -1,8 +1,14 @@
 // GLOBALS ---------------------------------------------
+require('dotenv').config();
 
 // Containers
 const localWeatherContainer = document.getElementById('localWeather');
 const searchedWeatherContainer = document.getElementById('searchedWeather');
+
+// API key from .env
+const apiKey = process.env.OPEN_WEATHER_API_KEY;
+console.log(apiKey);
+
 
 // Date Time els
 const navDate = $('#navDate');
@@ -56,16 +62,28 @@ $( function() {
 
 // API CALL --------------------------------------------
 async function fetchWeather() {
-    const apiUrl = "https://api.openweathermap.org/data/3.0/onecall?lat={lat}&lon={lon}&exclude={part}&appid={API key}";
+    // Base API URL
+    let apiUrl = "https://api.openweathermap.org/data/3.0/onecall?";
     
+    // Parameters (search location)
+    let params = {
+        latitude: "lat{" + latPos + "}",
+        longitude: "&lon={" + lonPos + "}",
+        exclude: "&exclude={" + part + "}",
+        key: "&appid={" + apiKey + "}"
+    }
+
+    // Complete URL to request
+    let queryUrl = apiUrl + params.latitude + params.longitude + params.exclude + params.key;
+
     // fetch data from API
-    fetch(apiUrl)
+    fetch(queryUrl)
         .then((response) => {
             // handle response 
             console.log(response.json());
             return response.json();
         })
-        .then((data) {
+        .then((data) => {
             // handle error
             console.log(data);
         })
