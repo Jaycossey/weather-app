@@ -1,13 +1,11 @@
 // GLOBALS ---------------------------------------------
-require('dotenv').config();
 
 // Containers
 const localWeatherContainer = document.getElementById('localWeather');
 const searchedWeatherContainer = document.getElementById('searchedWeather');
 
 // API key from .env
-const apiKey = process.env.OPEN_WEATHER_API_KEY;
-console.log(apiKey);
+const apiKey = "8e65421b6e97a45d703a871ea4e78c3a";
 
 
 // Date Time els
@@ -61,37 +59,48 @@ $( function() {
  */
 
 // API CALL --------------------------------------------
-async function fetchWeather() {
+async function fetchLatLon() {
     // Base API URL
-    let apiUrl = "https://api.openweathermap.org/data/3.0/onecall?";
+    let apiUrl = "http://api.openweathermap.org/geo/1.0/direct?q=";
     
     // Parameters (search location)
     let params = {
-        latitude: "lat{" + latPos + "}",
-        longitude: "&lon={" + lonPos + "}",
-        exclude: "&exclude={" + part + "}",
-        key: "&appid={" + apiKey + "}"
+        cityName: "London",
+        key: "&appid=" + apiKey + ""
     }
 
     // Complete URL to request
-    let queryUrl = apiUrl + params.latitude + params.longitude + params.exclude + params.key;
+    let queryUrl = apiUrl + params.cityName + params.key;
 
-    // fetch data from API
     fetch(queryUrl)
-        .then((response) => {
-            // handle response 
-            console.log(response.json());
+        .then(function (response) {
             return response.json();
         })
-        .then((data) => {
-            // handle error
+        .then(function (data) {
             console.log(data);
+            console.log(data[0].lat, data[0].lon);
         })
-        .catch(function(error) {
+        .catch(function (error) {
             console.log(error);
         });
+    // // fetch data from API
+    // await fetch(queryUrl)
+    //     .then((response) => {
+    //         // handle response 
+    //         console.log("response: ", response.json());
+    //         return response.json();
+    //     })
+    //     .then((data) => {
+    //         // handle error
+    //         console.log("data obj: ", data);
+    //     })
+    //     .catch(function(error) {
+    //         console.log(error);
+    //     });
 
 }
+
+fetchLatLon();
 
 // MARS WEATHER API CALL -------------------------------
 
