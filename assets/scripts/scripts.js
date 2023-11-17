@@ -2,12 +2,13 @@
 
 // Searchbar
 const searchBar = document.getElementById('searchLoc');
+let navIcon = document.getElementById('currentIcon');
 
 // Containers
 const localWeatherContainer = document.getElementById('localWeather');
 const searchedWeatherContainer = document.getElementById('searchedWeather');
 
-// API key from .env -- DO NOT COMMIT THIS!!!
+// API key from .env -- DO NOT COMMIT THIS!!! -- TOO LATE, invalidate them and generate new keys
 const apiKey = "8e65421b6e97a45d703a871ea4e78c3a";
 
 // API NASA key from .env -- DO NOT COMMIT THIS!!!
@@ -25,22 +26,7 @@ let humidityPer;
 let weatherType;
 
 // current weather icons
-const ICON_CLASS_LIST = {
-        sun: "fa-sun",
-        moon: "fa-moon",
-        rain: "fa-cloud-rain",
-        dayRain: "fa-cloud-sun-rain",
-        nightRain: "fa-cloud-moon-rain",
-        heavyRain: "fa-showers-heavy",
-        nightCloud: "fa-cloud-moon-",
-        storm: "fa-cloud-bolt",
-        tornado: "fa-tornado",
-        floodWarning: "fa-cloud-showers-water",
-        snow: "fa-snowflake",
-        fog: "fa-smog",
-        hurricane: "fa-hurricane",
-        temperature: "fa-temperature-half"
-    };
+let currentWeatherIconUrl;
 
 // function to handle auto complete
 $( function() {
@@ -54,7 +40,7 @@ $( function() {
         "Paris",
         "Seoul"
     ];
-    $('#tags').autocomplete({
+    $('#searchLoc').autocomplete({
         source: availableSearchTags
     });
 });
@@ -90,6 +76,8 @@ async function fetchWeather(lat, lon) {
             windSpeed = data.wind.speed + " kmph";
             humidityPer = data.main.humidity + "%";
             weatherType = data.weather[0].main;
+            currentWeatherIconUrl = "https://openweathermap.org/img/wn/" + data.weather[0].icon + "@2x.png";
+            navIcon.src = currentWeatherIconUrl;
             createWidget();
         })
         .catch(function (error) {
@@ -97,6 +85,31 @@ async function fetchWeather(lat, lon) {
         });
 
 }
+
+async function fetchForecast(lat, lon) {
+    console.log("forecast, add this ASAP");
+
+    let apiUrl = "https://pro.openweathermap.org/data/2.5/forecast/hourly";
+    const params = {
+        latitude: "?lat=" + lat,
+        longitude: "&lon=" + lon,
+        key: "&appid=" + apiKey
+    }
+
+    let queryUrl = apiUrl + params.latitude + params.longitude + params.key;
+    console.log(queryUrl);
+
+    await fetch(queryUrl)
+            .then(function (response) {
+                return response.json();
+            })
+            .then(function (data) {
+                console.log(data);
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
+} 
 
 // convert city name search to lat and lon coordinates
 async function fetchLatLon(city) {
@@ -122,6 +135,7 @@ async function fetchLatLon(city) {
             const lat = data[0].lat;
             const lon = data[0].lon;
             fetchWeather(lat, lon);
+            fetchForecast(lat, lon);
         })
         .catch(function (error) {
             console.log(error);
@@ -134,7 +148,19 @@ async function fetchLatLon(city) {
 
 // fetch mars weather
 function fetchMarsWeather() {
-    console.log("Mars Weather! Assign this function!");
+    console.log("Insight offline, create later on");
+    // let url = "https://api.nasa.gov/insight_weather/?api_key=" + nasaApiKey + "&feedtype=json&ver=1.0";
+
+    // fetch(url)
+    //     .then(function (response) {
+    //         return response.json();
+    //     })
+    //     .then(function (data) {
+    //         console.log(data);
+    //     })
+    //     .catch(function (error) {
+    //         console.log(error);
+    //     })
 }
 
 // DATE TIME FUNCTIONS ----------------------------------------------------------------------
@@ -182,26 +208,7 @@ class Widget {
 }
 
 function clearCurrentWidget() {
-    // // if the element doesnt have child nodes, return
-    // if (searchedWeatherContainer.hasChildNodes()) return;
-    // console.log("true");
-
-    
-    // return;
-
-    // Does element have children
-    if (!searchedWeatherContainer.hasChildNodes()) {
-        console.log("true");
-        let currentWidget = searchedWeatherContainer.querySelector('div');
-        console.log(currentWidget);
-        searchedWeatherContainer.removeChild(currentWidget);
-        return;
-    } else {
-        console.log("False");
-        return;
-    }
-    
-
+        $('#searchedWeather').empty();
 }
 
 // weather widget function
@@ -249,16 +256,19 @@ function createWidget() {
 // Search bar listener and handler
 searchBar.addEventListener('keydown', function(event) {
     if (event.key === 'Enter') {
+        // remove current widget from the screen (if present)
+        clearCurrentWidget();
         if (searchBar.value == 'mars') {
+            searchBar.value = "";
             fetchMarsWeather();
             return;
         }
-        // remove current widget from the screen (if present)
-        clearCurrentWidget();
         // set position to align widget in correct section
         widgetPosition = "Searched";
         // search for closest match to search value
         fetchLatLon(searchBar.value);
+        // clear current search
+        searchBar.value = "";
     }
     
 })
