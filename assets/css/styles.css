@@ -1,6 +1,6 @@
 /* GLOBALS ---------------------------------------------------*/
 :root {
-    --aqua: #468CA1;
+    --aqua: #14AFC2;
     --light-blue: #57D3F8;
     --blue: #14C2F6;
     --font-color: #0A2933;
@@ -58,24 +58,34 @@ main {
 
 
 /* SECTION STYLES --------------------------------------------*/
+#localWeather {
+    width: 90%;
+    margin: auto;
+}
+
 .widget {
     width: 90%;
-    height: 90%;
+    height: 80%;
     margin: auto;
-    border: 2px solid white;
     display: flex;
     flex-direction: column;
     text-align: center;
+    border: 4px inset var(--light-blue);
+    border-radius: 10px;
+    margin-top: 5px;
+    margin-bottom: 5px;
+    background-color: #319AA6;
 }
 
-.widget > p:first-child {
-    border: 2px solid red;
-    font-size: 1.5rem;
-    width: 50%;
-}
-
-.widget > p:nth-child(n + 2) {
+.widget > p {
+    font-size: 1.1rem;
     background-color: white;
+    border-radius: 10px;
+    border: "6px outset gray";
     height: 40px;
-    width: 10%;
+    width: 70%;
+    padding-top: 4px;
+    padding-bottom: 2px;
+    margin: auto;
+    margin-bottom: 10px;
 }
