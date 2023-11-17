@@ -34,6 +34,11 @@ main {
     text-shadow: 1px 1px var(--light-blue);
 }
 
+#currentIcon {
+    width: 60px;
+    filter: drop-shadow(5px 5px grey);
+}
+
 input {
     height: 20px;
     border: 4px inset var(--light-blue);
@@ -58,7 +63,8 @@ main {
 
 
 /* SECTION STYLES --------------------------------------------*/
-#localWeather {
+#localWeather,
+#searchedWeather {
     width: 90%;
     margin: auto;
 }
