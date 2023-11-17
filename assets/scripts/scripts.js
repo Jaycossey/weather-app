@@ -1,16 +1,25 @@
-// GLOBALS ---------------------------------------------
+// GLOBALS --------------------------------------------------------------------------------
 
 // Containers
 const localWeatherContainer = document.getElementById('localWeather');
 const searchedWeatherContainer = document.getElementById('searchedWeather');
 
-// API key from .env
+// API key from .env -- DO NOT COMMIT THIS!!!
 const apiKey = "8e65421b6e97a45d703a871ea4e78c3a";
 
+// API NASA key from .env -- DO NOT COMMIT THIS!!!
+const nasaApiKey = "1kcuQpcr1vlNvRnPlFzxpE8z70Fhwdn1visKtVVq";
 
 // Date Time els
 const navDate = $('#navDate');
 const navTime = $('#navTime');
+
+// Weather conditions
+let locationName;
+let temperatureNum;
+let windSpeed;
+let humidityPer;
+let weatherType;
 
 // current weather icons
 const ICON_CLASS_LIST = {
@@ -47,65 +56,81 @@ $( function() {
     });
 });
 
-// PLANNING --------------------------------------------
 
-/**
- * What does this script need to do? 
- * I need to change 'local' li element to display an icon of current local weather
+// API CALLS ------------------------------------------------------------------------------
 
- * I need to call the api for OpenWeather
- * I need to call the api for Mars weather using NASA api's
- * 
- */
+// fetch weather for the converted lat lon
+async function fetchWeather(lat, lon) {
+    // open weather api url
+    let apiUrl = "https://api.openweathermap.org/data/2.5/weather?";
 
-// API CALL --------------------------------------------
-async function fetchLatLon() {
+    // parameters for url
+    const params = {
+        latitude: "lat=" + lat,
+        longitude: "&lon=" + lon,
+        key: "&appid=" + apiKey
+    }
+
+    // string concat to determine query
+    let queryUrl = apiUrl + params.latitude + params.longitude + params.key;
+    // console.log(queryUrl);
+    
+    // fetch data
+    await fetch(queryUrl)
+        .then(function (response) {
+            return response.json();
+        })
+        .then(function (data) {
+            console.log(data);
+            temperatureNum = (Math.round((data.main.temp - 273.15))) + "&deg;C";
+            locationName = data.name;
+            windSpeed = data.wind.speed + " kmph";
+            humidityPer = data.main.humidity + "%";
+            weatherType = data.weather[0].main;
+            createWidget();
+        })
+        .catch(function (error) {
+            console.log(error);
+        });
+
+}
+
+// convert city name search to lat and lon coordinates
+async function fetchLatLon(city) {
     // Base API URL
     let apiUrl = "http://api.openweathermap.org/geo/1.0/direct?q=";
     
     // Parameters (search location)
-    let params = {
-        cityName: "London",
+    const params = {
+        cityName: city,
         key: "&appid=" + apiKey + ""
     }
 
     // Complete URL to request
     let queryUrl = apiUrl + params.cityName + params.key;
 
-    fetch(queryUrl)
+    // fetch response for coordinates
+    await fetch(queryUrl)
         .then(function (response) {
             return response.json();
         })
         .then(function (data) {
-            console.log(data);
-            console.log(data[0].lat, data[0].lon);
+            // fetch weather call with lat lon
+            const lat = data[0].lat;
+            const lon = data[0].lon;
+            fetchWeather(lat, lon);
         })
         .catch(function (error) {
             console.log(error);
         });
-    // // fetch data from API
-    // await fetch(queryUrl)
-    //     .then((response) => {
-    //         // handle response 
-    //         console.log("response: ", response.json());
-    //         return response.json();
-    //     })
-    //     .then((data) => {
-    //         // handle error
-    //         console.log("data obj: ", data);
-    //     })
-    //     .catch(function(error) {
-    //         console.log(error);
-    //     });
-
+    return;
 }
 
-fetchLatLon();
 
-// MARS WEATHER API CALL -------------------------------
+// MARS WEATHER API CALL --------------------------------------------------------------------
 
 
-// DATE TIME FUNCTIONS ---------------------------------
+// DATE TIME FUNCTIONS ----------------------------------------------------------------------
 
 // function to retrieve current date and time
 function getCurrentDate(format) {
@@ -128,81 +153,30 @@ function displayDateTime(element, format) {
     });
 }
 
+
+// FUNCTIONS TO DISPLAY DATA ----------------------------------------------------------------
+
+// Widget Array (lower api call quantity)
+let widgetArray = [];
+
+// constructor to store data as object
+class Widget {
+    constructor(location, weather, temp, humidity, wind) {
+        this.location = location;
+        this.weather = weather;
+        this.temp = temp;
+        this.humidity = humidity;
+        this.wind = wind;
+    }
+}
+
+// weather widget function
+function createWidget() {
+    widgetArray.push(new Widget(locationName, weatherType, temperatureNum, humidityPer, windSpeed));
+    console.log(widgetArray);
+}
+
 displayDateTime(navDate, "date");
 displayDateTime(navTime, "time");
 
-// FUNCTIONS TO HANDLE WEATHER DATA --------------------
-
-
-// FUNCTIONS TO DISPLAY DATA ---------------------------
-
-// array to store weather data
-let widgetArray = [];
-
-// lets show off OOP a bit as well. create constructor
-class WeatherWidget {
-    // constructor to assign with new keyword
-    constructor(location, temperature, wind, humidity) {
-        // create widget element
-        this.element = document.createElement('div');
-        this.element.className = "widget";
-
-        // create widget children
-        this.locEl = document.createElement('p');
-        this.tempEl = document.createElement('p');
-        this.windEl = document.createElement('p');
-        this.humEl = document.createElement('p');
-    
-        // assign text values
-        this.locEl.textContent = location;
-        this.tempEl.textContent = temperature;
-        this.windEl.textContent = wind;
-        this.humEl.textContent = humidity;
-
-        // append to parent
-        this.element.append(this.locEl, this.tempEl, this.windEl, this.humEl);
-
-        // return completed element
-        return this.element;
-    }
-
-}
-
-// function to call new widget
-function createWidget(location) {
-    // new widget with data as args
-    let widget = new WeatherWidget(location, 10, "10kph", "84%");
-    // store in array
-    widgetArray.push(widget);
-    // console.log(widget);
-    // return element 
-    return widget;
-}
-
-// display local weather
-function displayWeather(screenPosition) {
-    // create container to hold the widgets
-    let newDiv = document.createElement('div');
-    newDiv.style.height = "320px";
-    newDiv.style.width = "90%";
-    newDiv.style.border = "2px solid red";
-    newDiv.style.borderRadius = "20px";
-    newDiv.style.margin = "auto";
-    newDiv.style.marginTop = "15px";
-    newDiv.style.backgroundColor = "#3A9E91";
-    
-    // determine if local weather or searched weather
-    if (screenPosition === "local") {
-        // append the widget to parent div
-        newDiv.append(createWidget("London"));
-        // append div to container
-        localWeatherContainer.appendChild(newDiv);
-    } else {
-        newDiv.append(createWidget("Mars"));
-        searchedWeatherContainer.appendChild(newDiv);
-    }
-}
-
-displayWeather("local");
-displayWeather("searched");
-console.log(widgetArray);
+document.onload = fetchLatLon("Northampton");
