@@ -95,3 +95,12 @@ main {
     margin: auto;
     margin-bottom: 10px;
 }
+
+.fetchForecast {
+    width: 200px;
+    height: 30px;
+    border: 4px outset var(--light-blue);
+    border-radius: 10px;
+    margin: auto;
+    margin-bottom: 5px;
+}
