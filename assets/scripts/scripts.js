@@ -11,9 +11,6 @@ const searchedWeatherContainer = document.getElementById('searchedWeather');
 // API key from .env -- DO NOT COMMIT THIS!!! -- TOO LATE, invalidate them and generate new keys
 const apiKey = "8e65421b6e97a45d703a871ea4e78c3a";
 
-// API NASA key from .env -- DO NOT COMMIT THIS!!!
-const nasaApiKey = "1kcuQpcr1vlNvRnPlFzxpE8z70Fhwdn1visKtVVq";
-
 // Date Time els
 const navDate = $('#navDate');
 const navTime = $('#navTime');
@@ -25,8 +22,14 @@ let windSpeed;
 let humidityPer;
 let weatherType;
 
+// local time
+let localTime = 0;
+
 // current weather icons
 let currentWeatherIconUrl;
+
+// Store forecast data for locations
+let forecastData = [];
 
 // function to handle auto complete
 $( function() {
@@ -78,6 +81,9 @@ async function fetchWeather(lat, lon) {
             weatherType = data.weather[0].main;
             currentWeatherIconUrl = "https://openweathermap.org/img/wn/" + data.weather[0].icon + "@2x.png";
             navIcon.src = currentWeatherIconUrl;
+
+            // assign unix value in seconds
+            localTime = data.timezone;
             createWidget();
         })
         .catch(function (error) {
@@ -86,25 +92,28 @@ async function fetchWeather(lat, lon) {
 
 }
 
+// fetch forecast function
 async function fetchForecast(lat, lon) {
-    console.log("forecast, add this ASAP");
-
-    let apiUrl = "https://pro.openweathermap.org/data/2.5/forecast/hourly";
+    // forecast api url 
+    let apiUrl = "https://api.openweathermap.org/data/2.5/forecast?";
+    // url parameters
     const params = {
-        latitude: "?lat=" + lat,
+        latitude: "lat=" + lat,
         longitude: "&lon=" + lon,
         key: "&appid=" + apiKey
     }
 
+    // constructed url
     let queryUrl = apiUrl + params.latitude + params.longitude + params.key;
-    console.log(queryUrl);
 
+    // fetch data
     await fetch(queryUrl)
             .then(function (response) {
                 return response.json();
             })
             .then(function (data) {
                 console.log(data);
+                forecastData.push(data);
             })
             .catch(function (error) {
                 console.log(error);
@@ -146,30 +155,18 @@ async function fetchLatLon(city) {
 
 // MARS WEATHER API CALL --------------------------------------------------------------------
 
-// fetch mars weather
-function fetchMarsWeather() {
-    console.log("Insight offline, create later on");
-    // let url = "https://api.nasa.gov/insight_weather/?api_key=" + nasaApiKey + "&feedtype=json&ver=1.0";
-
-    // fetch(url)
-    //     .then(function (response) {
-    //         return response.json();
-    //     })
-    //     .then(function (data) {
-    //         console.log(data);
-    //     })
-    //     .catch(function (error) {
-    //         console.log(error);
-    //     })
-}
-
 // DATE TIME FUNCTIONS ----------------------------------------------------------------------
 
 // function to retrieve current date and time
 function getCurrentDate(format) {
-    // create data for date and time
-    let date = dayjs().format('dddd DD/MM/YYYY');
-    let time = dayjs().format('HH:MM:ss a');;
+    // convert local time on load
+    let currentUnix = dayjs().unix();
+    currentUnix += localTime;
+
+    // create date & time format for local time to location searched
+    let date = dayjs(currentUnix).format('dddd DD/MM/YYYY');
+    let time = dayjs(currentUnix).format('HH:MM:ss a');
+
     // return respective of format
     if (format === "date") {
         return date;
@@ -183,7 +180,7 @@ function displayDateTime(element, format) {
     // update time every second
     setInterval(() => {
         element.text(getCurrentDate(format));
-    });
+    }, 1000);
 }
 
 
@@ -207,9 +204,11 @@ class Widget {
     }
 }
 
+// clear searched weather widget
 function clearCurrentWidget() {
-        $('#searchedWeather').empty();
+    $('#localWeather').empty();
 }
+
 
 // weather widget function
 function createWidget() {
@@ -231,6 +230,12 @@ function createWidget() {
     let humidityEl = document.createElement('p');
     let windEl = document.createElement('p');
 
+    // forecastButton
+    let forecastButton = document.createElement('button');
+    forecastButton.value = widgetArray[0].location;
+    forecastButton.className = "fetchForecast";
+    forecastButton.textContent = "Get 5 Day Forecast";
+
     // assign content to elements
     locationHeader.innerText = widgetArray[0].location;
     weatherSubHeader.innerText = widgetArray[0].weather;
@@ -239,14 +244,10 @@ function createWidget() {
     windEl.innerText = widgetArray[0].wind;
 
     // append weather widgets
-    widgetEl.append(locationHeader, weatherSubHeader, tempEl, humidityEl, windEl);
+    widgetEl.append(locationHeader, weatherSubHeader, forecastButton, tempEl, humidityEl, windEl);
 
-    // Where to display weather
-    if (widgetPosition === "Local") {
-        localWeatherContainer.append(widgetEl);
-    } else {
-        searchedWeatherContainer.append(widgetEl);
-    }
+    // display weather
+    localWeatherContainer.append(widgetEl);
 
 }
 
@@ -258,13 +259,6 @@ searchBar.addEventListener('keydown', function(event) {
     if (event.key === 'Enter') {
         // remove current widget from the screen (if present)
         clearCurrentWidget();
-        if (searchBar.value == 'mars') {
-            searchBar.value = "";
-            fetchMarsWeather();
-            return;
-        }
-        // set position to align widget in correct section
-        widgetPosition = "Searched";
         // search for closest match to search value
         fetchLatLon(searchBar.value);
         // clear current search
@@ -278,4 +272,3 @@ displayDateTime(navDate, "date");
 displayDateTime(navTime, "time");
 
 document.onload = fetchLatLon("London");
-
