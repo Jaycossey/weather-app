@@ -8,9 +8,6 @@ let navIcon = document.getElementById('currentIcon');
 const localWeatherContainer = document.getElementById('localWeather');
 const searchedWeatherContainer = document.getElementById('searchedWeather');
 
-// API key from .env -- DO NOT COMMIT THIS!!! -- TOO LATE, invalidate them and generate new keys
-const apiKey = "8e65421b6e97a45d703a871ea4e78c3a";
-
 // Date Time els
 const navDate = $('#navDate');
 const navTime = $('#navTime');
