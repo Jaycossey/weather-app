@@ -153,7 +153,7 @@ async function fetchForecast(lat, lon) {
 // convert city name search to lat and lon coordinates
 async function fetchLatLon(city) {
     // Base API URL
-    let apiUrl = "http://api.openweathermap.org/geo/1.0/direct?q=";
+    let apiUrl = "https://api.openweathermap.org/geo/1.0/direct?q=";
     
     // Parameters (search location)
     const params = {
