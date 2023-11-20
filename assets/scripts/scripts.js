@@ -32,18 +32,35 @@ let currentWeatherIconUrl;
 let widgetArray;
 let forecastData;
 
+// Store current and users search tags
+let availableSearchTags = [
+    "London",
+    "Berlin",
+    "Tokyo",
+    "Johannesburg",
+    "Washington",
+    "Paris",
+    "Seoul",
+    "Kyiv",
+    "Warsaw",
+    "Athens"
+];
+
+// function to handle search tags
+function handleSearchTags(newLocation) {
+    // if local storage is empty
+    if (localStorage.getItem(availableSearchTags) === null) {
+        // add data to array and set new list
+        availableSearchTags.push(newLocation);
+        localStorage.setItem("tags", JSON.stringify(availableSearchTags));
+    } else {
+        // else add local to array
+        availableSearchTags = JSON.parse(localStorage.getItem("tags"));
+    }
+}
+
 // function to handle auto complete
 $( function() {
-    let availableSearchTags = [
-        "Mars",
-        "London",
-        "Berlin",
-        "Tokyo",
-        "Johannesburg",
-        "Washington",
-        "Paris",
-        "Seoul"
-    ];
     $('#searchLoc').autocomplete({
         source: availableSearchTags
     });
@@ -74,7 +91,6 @@ async function fetchWeather(lat, lon) {
             return response.json();
         })
         .then(function (data) {
-            console.log(data);
             temperatureNum = (Math.round((data.main.temp - 273.15))) + "&deg;C";
             locationName = data.name;
             windSpeed = data.wind.speed + " kmph";
@@ -220,7 +236,7 @@ class ForecastDay {
     }
 }
 
-// clear searched weather widget
+// clear searched weather widgets
 function clearCurrentWidget() {
     $('#localWeather').empty();
     $('#forecastWeather').empty();
@@ -232,7 +248,6 @@ function createWidget() {
     widgetArray = [];
     // create and store objects in array
     widgetArray.unshift(new Widget(locationName, weatherType, temperatureNum, humidityPer, windSpeed));
-    console.log(widgetArray);
     
     // create parent div
     let widgetEl = document.createElement('div');
@@ -264,7 +279,6 @@ function createWidget() {
 
 // function to display forecast
 function displayForecast() {
-    // console.log("forecast function call");
     // For each forecast object
     forecastData.forEach((forecast) => {
         // create parent div
@@ -302,13 +316,13 @@ searchBar.addEventListener('keydown', function(event) {
         // remove current widget from the screen (if present)
         clearCurrentWidget();
         // search for closest match to search value
-        fetchLatLon(searchBar.value);
+        fetchLatLon(searchBar.value.trim());
+        handleSearchTags(searchBar.value.trim());
         // clear current search
         searchBar.value = "";
     }
     
 })
-
 
 displayDateTime(navDate, "date");
 displayDateTime(navTime, "time");
