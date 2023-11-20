@@ -6,7 +6,7 @@ let navIcon = document.getElementById('currentIcon');
 
 // Containers
 const localWeatherContainer = document.getElementById('localWeather');
-const searchedWeatherContainer = document.getElementById('searchedWeather');
+const forecastDataContainer = document.getElementById('forecastWeather');
 
 // Date Time els
 const navDate = $('#navDate');
@@ -25,8 +25,9 @@ let localTime = 0;
 // current weather icons
 let currentWeatherIconUrl;
 
-// Store forecast data for locations
-let forecastData = [];
+// Store widget and forecast data for locations
+let widgetArray;
+let forecastData;
 
 // function to handle auto complete
 $( function() {
@@ -91,6 +92,8 @@ async function fetchWeather(lat, lon) {
 
 // fetch forecast function
 async function fetchForecast(lat, lon) {
+    // clear existing forecast data
+    forecastData = [];
     // forecast api url 
     let apiUrl = "https://api.openweathermap.org/data/2.5/forecast?";
     // url parameters
@@ -110,11 +113,19 @@ async function fetchForecast(lat, lon) {
             })
             .then(function (data) {
                 console.log(data);
-                forecastData.push(data);
+                for (let i = 0; i <= data.list.length - 7; i+=8) {
+                    forecastData.push(new ForecastDay(data.list[i].dt_txt,
+                        data.list[i].weather[0].main, 
+                        (Math.round(data.list[i].main.temp - 273.15)) + "&deg;C", 
+                        data.list[i].weather[0].icon));
+                }
+                console.log(forecastData);
             })
             .catch(function (error) {
                 console.log(error);
             });
+
+            displayForecast();
 } 
 
 // convert city name search to lat and lon coordinates
@@ -150,19 +161,13 @@ async function fetchLatLon(city) {
 }
 
 
-// MARS WEATHER API CALL --------------------------------------------------------------------
-
 // DATE TIME FUNCTIONS ----------------------------------------------------------------------
 
 // function to retrieve current date and time
 function getCurrentDate(format) {
-    // convert local time on load
-    let currentUnix = dayjs().unix();
-    currentUnix += localTime;
-
     // create date & time format for local time to location searched
-    let date = dayjs(currentUnix).format('dddd DD/MM/YYYY');
-    let time = dayjs(currentUnix).format('HH:MM:ss a');
+    let date = dayjs().format('dddd DD/MM/YYYY');
+    let time = dayjs().format('HH:MM:ss a');
 
     // return respective of format
     if (format === "date") {
@@ -187,9 +192,6 @@ function displayDateTime(element, format) {
 // Position of weather widget on screen
 let widgetPosition = "Local";
 
-// Widget Array (lower api call quantity)
-let widgetArray = [];
-
 // constructor to store data as object
 class Widget {
     constructor(location, weather, temp, humidity, wind) {
@@ -201,15 +203,26 @@ class Widget {
     }
 }
 
+// constructor to handle forecast data
+class ForecastDay {
+    constructor(date, weather, temperature, icon) {
+        this.date = date,
+        this.weather = weather,
+        this.temperature = temperature,
+        this.icon = icon
+    }
+}
+
 // clear searched weather widget
 function clearCurrentWidget() {
     $('#localWeather').empty();
+    $('#forecastWeather').empty();
 }
 
 
 // weather widget function
 function createWidget() {
-    
+    widgetArray = [];
     // create and store objects in array
     widgetArray.unshift(new Widget(locationName, weatherType, temperatureNum, humidityPer, windSpeed));
     console.log(widgetArray);
@@ -227,12 +240,6 @@ function createWidget() {
     let humidityEl = document.createElement('p');
     let windEl = document.createElement('p');
 
-    // forecastButton
-    let forecastButton = document.createElement('button');
-    forecastButton.value = widgetArray[0].location;
-    forecastButton.className = "fetchForecast";
-    forecastButton.textContent = "Get 5 Day Forecast";
-
     // assign content to elements
     locationHeader.innerText = widgetArray[0].location;
     weatherSubHeader.innerText = widgetArray[0].weather;
@@ -241,11 +248,40 @@ function createWidget() {
     windEl.innerText = widgetArray[0].wind;
 
     // append weather widgets
-    widgetEl.append(locationHeader, weatherSubHeader, forecastButton, tempEl, humidityEl, windEl);
+    widgetEl.append(locationHeader, weatherSubHeader, tempEl, humidityEl, windEl);
 
     // display weather
     localWeatherContainer.append(widgetEl);
 
+}
+
+// function to display forecast
+function displayForecast() {
+    // console.log("forecast function call");
+    // For each forecast object
+    forecastData.forEach((forecast) => {
+        // create parent div
+        let dayEl = document.createElement('div');
+        dayEl.class = "forecastElement";
+        // display data 
+        let dateEl = document.createElement('p');
+        let iconEl = document.createElement('img');
+        let weatherEl = document.createElement('p');
+        let temperatureEl = document.createElement('p');
+
+        // icon image url
+        let forecastIcon = "https://openweathermap.org/img/wn/" + forecast.icon + "@2x.png";
+
+        // assign values 
+        dateEl.innerText = forecast.date;
+        iconEl.setAttribute('src', forecastIcon);
+        weatherEl.innerHTML = forecast.weather;
+        temperatureEl.innerHTML = forecast.temperature;
+
+        // append to parent and screen
+        dayEl.append(dateEl, iconEl, weatherEl, temperatureEl);
+        forecastDataContainer.append(dayEl);
+    });
 }
 
 
