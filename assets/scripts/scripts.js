@@ -6,7 +6,7 @@ let navIcon = document.getElementById('currentIcon');
 
 // Containers
 const localWeatherContainer = document.getElementById('localWeather');
-const searchedWeatherContainer = document.getElementById('searchedWeather');
+const forecastDataContainer = document.getElementById('forecastWeather');
 
 // API key from .env -- DO NOT COMMIT THIS!!! -- TOO LATE, invalidate them and generate new keys
 const apiKey = "8e65421b6e97a45d703a871ea4e78c3a";
@@ -127,6 +127,8 @@ async function fetchForecast(lat, lon) {
             .catch(function (error) {
                 console.log(error);
             });
+
+            displayForecast();
 } 
 
 // convert city name search to lat and lon coordinates
@@ -217,6 +219,7 @@ class ForecastDay {
 // clear searched weather widget
 function clearCurrentWidget() {
     $('#localWeather').empty();
+    $('#forecastWeather').empty();
 }
 
 
@@ -257,7 +260,31 @@ function createWidget() {
 
 // function to display forecast
 function displayForecast() {
-    console.log("forecast function call");
+    // console.log("forecast function call");
+    // For each forecast object
+    forecastData.forEach((forecast) => {
+        // create parent div
+        let dayEl = document.createElement('div');
+        dayEl.class = "forecastElement";
+        // display data 
+        let dateEl = document.createElement('p');
+        let iconEl = document.createElement('img');
+        let weatherEl = document.createElement('p');
+        let temperatureEl = document.createElement('p');
+
+        // icon image url
+        let forecastIcon = "https://openweathermap.org/img/wn/" + forecast.icon + "@2x.png";
+
+        // assign values 
+        dateEl.innerText = forecast.date;
+        iconEl.setAttribute('src', forecastIcon);
+        weatherEl.innerHTML = forecast.weather;
+        temperatureEl.innerHTML = forecast.temperature;
+
+        // append to parent and screen
+        dayEl.append(dateEl, iconEl, weatherEl, temperatureEl);
+        forecastDataContainer.append(dayEl);
+    });
 }
 
 
