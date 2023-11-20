@@ -28,8 +28,9 @@ let localTime = 0;
 // current weather icons
 let currentWeatherIconUrl;
 
-// Store forecast data for locations
-let forecastData = [];
+// Store widget and forecast data for locations
+let widgetArray;
+let forecastData;
 
 // function to handle auto complete
 $( function() {
@@ -94,6 +95,8 @@ async function fetchWeather(lat, lon) {
 
 // fetch forecast function
 async function fetchForecast(lat, lon) {
+    // clear existing forecast data
+    forecastData = [];
     // forecast api url 
     let apiUrl = "https://api.openweathermap.org/data/2.5/forecast?";
     // url parameters
@@ -113,7 +116,13 @@ async function fetchForecast(lat, lon) {
             })
             .then(function (data) {
                 console.log(data);
-                forecastData.push(data);
+                for (let i = 0; i <= data.list.length - 7; i+=8) {
+                    forecastData.push(new ForecastDay(data.list[i].dt_txt,
+                        data.list[i].weather[0].main, 
+                        (Math.round(data.list[i].main.temp - 273.15)) + "&deg;C", 
+                        data.list[i].weather[0].icon));
+                }
+                console.log(forecastData);
             })
             .catch(function (error) {
                 console.log(error);
@@ -153,19 +162,13 @@ async function fetchLatLon(city) {
 }
 
 
-// MARS WEATHER API CALL --------------------------------------------------------------------
-
 // DATE TIME FUNCTIONS ----------------------------------------------------------------------
 
 // function to retrieve current date and time
 function getCurrentDate(format) {
-    // convert local time on load
-    let currentUnix = dayjs().unix();
-    currentUnix += localTime;
-
     // create date & time format for local time to location searched
-    let date = dayjs(currentUnix).format('dddd DD/MM/YYYY');
-    let time = dayjs(currentUnix).format('HH:MM:ss a');
+    let date = dayjs().format('dddd DD/MM/YYYY');
+    let time = dayjs().format('HH:MM:ss a');
 
     // return respective of format
     if (format === "date") {
@@ -190,9 +193,6 @@ function displayDateTime(element, format) {
 // Position of weather widget on screen
 let widgetPosition = "Local";
 
-// Widget Array (lower api call quantity)
-let widgetArray = [];
-
 // constructor to store data as object
 class Widget {
     constructor(location, weather, temp, humidity, wind) {
@@ -204,6 +204,16 @@ class Widget {
     }
 }
 
+// constructor to handle forecast data
+class ForecastDay {
+    constructor(date, weather, temperature, icon) {
+        this.date = date,
+        this.weather = weather,
+        this.temperature = temperature,
+        this.icon = icon
+    }
+}
+
 // clear searched weather widget
 function clearCurrentWidget() {
     $('#localWeather').empty();
@@ -212,7 +222,7 @@ function clearCurrentWidget() {
 
 // weather widget function
 function createWidget() {
-    
+    widgetArray = [];
     // create and store objects in array
     widgetArray.unshift(new Widget(locationName, weatherType, temperatureNum, humidityPer, windSpeed));
     console.log(widgetArray);
@@ -230,12 +240,6 @@ function createWidget() {
     let humidityEl = document.createElement('p');
     let windEl = document.createElement('p');
 
-    // forecastButton
-    let forecastButton = document.createElement('button');
-    forecastButton.value = widgetArray[0].location;
-    forecastButton.className = "fetchForecast";
-    forecastButton.textContent = "Get 5 Day Forecast";
-
     // assign content to elements
     locationHeader.innerText = widgetArray[0].location;
     weatherSubHeader.innerText = widgetArray[0].weather;
@@ -244,11 +248,16 @@ function createWidget() {
     windEl.innerText = widgetArray[0].wind;
 
     // append weather widgets
-    widgetEl.append(locationHeader, weatherSubHeader, forecastButton, tempEl, humidityEl, windEl);
+    widgetEl.append(locationHeader, weatherSubHeader, tempEl, humidityEl, windEl);
 
     // display weather
     localWeatherContainer.append(widgetEl);
 
+}
+
+// function to display forecast
+function displayForecast() {
+    console.log("forecast function call");
 }
 
 
