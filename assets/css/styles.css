@@ -13,6 +13,9 @@ body {
     font-family: monospace;
     box-sizing: border-box;
     background-image: url('../images/rain-drop.jpg');
+    background-repeat: no-repeat;
+    background-postition: center;
+    background-size: cover;
     color: var(--cosmic-latte);
 }
 
@@ -99,7 +102,7 @@ main {
     color: var(--dark-shade);
 }
 
-/* NEEDS RESPONSIVE DESIGN ON THIS FLEXBOX!!!!!!!! */
+/* FORECAST ELEMENT STYLES ---------------------------------- */
 #forecastWeather {
     display: flex;
     flex-wrap: wrap;

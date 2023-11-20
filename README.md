@@ -6,16 +6,14 @@ When a user searches for a city they are presented with present and future forec
 
 When a user views weather for a city they are presented with the city name, current date, an icon displaying the weather conditions with text for the temperature humidity and wind speed.
 
-When a user views future forecasts they are presented with a display for the same data above but set at that dates forecast.
+When a user views future forecasts they are presented with a display for the same data above, minus humidity but set at that dates forecast.
 
-## Roadmap
 
-- Planning
-- API call
-- API data handling
-- Display functionality
-- Search history functionality
-- Styling
+![Screenshot of app working fullscreen](./assets/images/screen1.PNG)
+> Full screen view of application
+
+![Screenshot of app working in mobile responsive](./assets/images/screen2.PNG)
+> Mobile resolution and local storage screenshot
 
 ## Front End
 
@@ -27,7 +25,7 @@ When a user views future forecasts they are presented with a display for the sam
 
 ## Usage
 
-N/A - WIP
+Deployed Link: https://jaycossey.github.io/weather-app/
 
 ## Support
 
@@ -35,4 +33,4 @@ For support please contact me via: https://github.com/Jaycossey
 
 ## License
 
-See License for details.
+MIT: See License for details.
