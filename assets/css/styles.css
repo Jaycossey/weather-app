@@ -1,35 +1,32 @@
 /* GLOBALS ---------------------------------------------------*/
 :root {
-    --aqua: #14AFC2;
-    --light-blue: #57D3F8;
-    --blue: #14C2F6;
-    --font-color: #0A2933;
-
-    /* Not happy with color scheme, need to change */
     --cosmic-latte: #FFF8E7; 
     --bg-shade: #9F9B90;
     --mid-shade: #605D57;
     --dark-shade: #201F1D;
+    --mid-rgba: rgba(96, 93, 87, 0.6);
+    --dark-rgba: rgba(32, 31, 29, 0.7);
+    --border: 4px outset var(--dark-rgba);
 }
 
 body {
     font-family: monospace;
     box-sizing: border-box;
-    background-color: var(--blue);
-}
-
-header,
-main {
-    box-shadow: 0 0 20px var(--aqua);
+    background-image: url('../images/rain-drop.jpg');
+    color: var(--cosmic-latte);
 }
 
 
 /* NAVBAR AND HEADER -----------------------------------------*/
+
 #navbar {
     display: flex;
     flex-wrap: wrap;
     list-decoration: none;
     text-align: center;
+    text-shadow: 2px 2px var(--mid-shade);
+    background-color: var(--dark-rgba);
+    border: var(--border);
 }
 
 #navbar > li {
@@ -37,7 +34,7 @@ main {
     list-style: none;
     font-size: 1.3rem;
     color: var(--cosmic-latte);
-    text-shadow: 1px 1px var(--mid-shade);
+    text-shadow: 1px 1px var(--dark-shade);
 }
 
 #currentIcon {
@@ -48,30 +45,30 @@ main {
 input {
     height: 20px;
     border: 4px inset var(--bg-shade);
-    border-radius: 15px;
+    border-radius: 10px 5px;
     box-shadow: 0px 2px 10px var(--mid-shade);
-}
-
-.w-screen {
-    width: 95vw;
-    margin: auto;
-    margin-bottom: 15px;
-    background-color: var(--mid-shade);
-    border: 8px outset var(--bg-shade);
-    border-radius: 30px 10px 30px 10px;
 }
 
 
 /* MAIN DIV STYLES -------------------------------------------*/
 main {
-    height: 80vh;
+    border: var(--border);
+    height: content;
+    background-color: var(--mid-rgba);
 }
 
+.w-screen {
+    margin: auto;
+    margin-bottom: 15px;
+    border-radius: 30px 10px 30px 10px;
+    border: var(--border);
+
+}
 
 /* SECTION STYLES --------------------------------------------*/
 #localWeather,
 #forecastWeather {
-    width: 90%;
+    padding: 10px;
     margin: auto;
 }
 
@@ -82,39 +79,42 @@ main {
     display: flex;
     flex-direction: column;
     text-align: center;
-    border: 4px inset var(--bg-shade);
-    border-radius: 10px;
+    border-radius: 30px 5px;
     margin-top: 5px;
     margin-bottom: 5px;
-    background-color: var(--mid-shade);
+    background-color: var(--mid-rgba);
 }
 
 .widget > p {
     font-size: 1.1rem;
-    background-color: white;
+    background-color: var(--bg-shade);
     border-radius: 10px;
-    border: "6px outset gray";
+    border: var(--border);
     height: 40px;
     width: 70%;
     padding-top: 4px;
     padding-bottom: 2px;
     margin: auto;
     margin-bottom: 10px;
+    color: var(--dark-shade);
 }
 
 /* NEEDS RESPONSIVE DESIGN ON THIS FLEXBOX!!!!!!!! */
 #forecastWeather {
     display: flex;
+    flex-wrap: wrap;
     align-items: space-between;
     justify-content: space-evenly;
     text-align: center;
+    text-shadow: 2px 2px var(--mid-rgba);
     padding: 10px;
 }
 
 #forecastWeather > div {
     border-radius: 10px 5px 10px 5px;
-    border: 2px solid white;
-    background-color: var(--mid-shade);
+    border: 2px solid var(--dark-rgba);
+    background-image: linear-gradient(120deg, var(--mid-rgba), var(--bg-shade), var(--dark-shade));
+    background-opacity: 90%;
     padding: 10px;
-    color: var(--cosmic-latte);
+    margin: 10px;
 }

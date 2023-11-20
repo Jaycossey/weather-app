@@ -29,18 +29,35 @@ let currentWeatherIconUrl;
 let widgetArray;
 let forecastData;
 
+// Store current and users search tags
+let availableSearchTags = [
+    "London",
+    "Berlin",
+    "Tokyo",
+    "Johannesburg",
+    "Washington",
+    "Paris",
+    "Seoul",
+    "Kyiv",
+    "Warsaw",
+    "Athens"
+];
+
+// function to handle search tags
+function handleSearchTags(newLocation) {
+    // if local storage is empty
+    if (localStorage.getItem(availableSearchTags) === null) {
+        // add data to array and set new list
+        availableSearchTags.push(newLocation);
+        localStorage.setItem("tags", JSON.stringify(availableSearchTags));
+    } else {
+        // else add local to array
+        availableSearchTags = JSON.parse(localStorage.getItem("tags"));
+    }
+}
+
 // function to handle auto complete
 $( function() {
-    let availableSearchTags = [
-        "Mars",
-        "London",
-        "Berlin",
-        "Tokyo",
-        "Johannesburg",
-        "Washington",
-        "Paris",
-        "Seoul"
-    ];
     $('#searchLoc').autocomplete({
         source: availableSearchTags
     });
@@ -71,7 +88,6 @@ async function fetchWeather(lat, lon) {
             return response.json();
         })
         .then(function (data) {
-            console.log(data);
             temperatureNum = (Math.round((data.main.temp - 273.15))) + "&deg;C";
             locationName = data.name;
             windSpeed = data.wind.speed + " kmph";
@@ -112,14 +128,17 @@ async function fetchForecast(lat, lon) {
                 return response.json();
             })
             .then(function (data) {
-                console.log(data);
+                // console.log(data);
                 for (let i = 0; i <= data.list.length - 7; i+=8) {
-                    forecastData.push(new ForecastDay(data.list[i].dt_txt,
+                    forecastData.push(new ForecastDay(
+                        data.list[i].dt_txt,
                         data.list[i].weather[0].main, 
                         (Math.round(data.list[i].main.temp - 273.15)) + "&deg;C", 
-                        data.list[i].weather[0].icon));
+                        data.list[i].weather[0].icon,
+                        data.list[i].main.humidity + "%"));
+                        
                 }
-                console.log(forecastData);
+                // console.log(forecastData);
             })
             .catch(function (error) {
                 console.log(error);
@@ -205,15 +224,16 @@ class Widget {
 
 // constructor to handle forecast data
 class ForecastDay {
-    constructor(date, weather, temperature, icon) {
+    constructor(date, weather, temperature, icon, humidity) {
         this.date = date,
         this.weather = weather,
         this.temperature = temperature,
-        this.icon = icon
+        this.icon = icon,
+        this.humidity = humidity
     }
 }
 
-// clear searched weather widget
+// clear searched weather widgets
 function clearCurrentWidget() {
     $('#localWeather').empty();
     $('#forecastWeather').empty();
@@ -225,7 +245,6 @@ function createWidget() {
     widgetArray = [];
     // create and store objects in array
     widgetArray.unshift(new Widget(locationName, weatherType, temperatureNum, humidityPer, windSpeed));
-    console.log(widgetArray);
     
     // create parent div
     let widgetEl = document.createElement('div');
@@ -257,7 +276,6 @@ function createWidget() {
 
 // function to display forecast
 function displayForecast() {
-    // console.log("forecast function call");
     // For each forecast object
     forecastData.forEach((forecast) => {
         // create parent div
@@ -268,6 +286,7 @@ function displayForecast() {
         let iconEl = document.createElement('img');
         let weatherEl = document.createElement('p');
         let temperatureEl = document.createElement('p');
+        let humidityEl = document.createElement('p');
 
         // icon image url
         let forecastIcon = "https://openweathermap.org/img/wn/" + forecast.icon + "@2x.png";
@@ -277,9 +296,10 @@ function displayForecast() {
         iconEl.setAttribute('src', forecastIcon);
         weatherEl.innerHTML = forecast.weather;
         temperatureEl.innerHTML = forecast.temperature;
+        humidityEl.textContent = forecast.humidity;
 
         // append to parent and screen
-        dayEl.append(dateEl, iconEl, weatherEl, temperatureEl);
+        dayEl.append(dateEl, iconEl, weatherEl, temperatureEl, humidityEl);
         forecastDataContainer.append(dayEl);
     });
 }
@@ -293,13 +313,13 @@ searchBar.addEventListener('keydown', function(event) {
         // remove current widget from the screen (if present)
         clearCurrentWidget();
         // search for closest match to search value
-        fetchLatLon(searchBar.value);
+        fetchLatLon(searchBar.value.trim());
+        handleSearchTags(searchBar.value.trim());
         // clear current search
         searchBar.value = "";
     }
     
 })
-
 
 displayDateTime(navDate, "date");
 displayDateTime(navTime, "time");
