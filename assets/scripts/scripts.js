@@ -12,6 +12,9 @@ const forecastDataContainer = document.getElementById('forecastWeather');
 const navDate = $('#navDate');
 const navTime = $('#navTime');
 
+// API KEY
+const apiKey = "8e65421b6e97a45d703a871ea4e78c3a";
+
 // Weather conditions
 let locationName;
 let temperatureNum;
