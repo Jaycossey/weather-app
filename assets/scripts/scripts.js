@@ -115,14 +115,17 @@ async function fetchForecast(lat, lon) {
                 return response.json();
             })
             .then(function (data) {
-                console.log(data);
+                // console.log(data);
                 for (let i = 0; i <= data.list.length - 7; i+=8) {
-                    forecastData.push(new ForecastDay(data.list[i].dt_txt,
+                    forecastData.push(new ForecastDay(
+                        data.list[i].dt_txt,
                         data.list[i].weather[0].main, 
                         (Math.round(data.list[i].main.temp - 273.15)) + "&deg;C", 
-                        data.list[i].weather[0].icon));
+                        data.list[i].weather[0].icon,
+                        data.list[i].main.humidity + "%"));
+                        
                 }
-                console.log(forecastData);
+                // console.log(forecastData);
             })
             .catch(function (error) {
                 console.log(error);
@@ -208,11 +211,12 @@ class Widget {
 
 // constructor to handle forecast data
 class ForecastDay {
-    constructor(date, weather, temperature, icon) {
+    constructor(date, weather, temperature, icon, humidity) {
         this.date = date,
         this.weather = weather,
         this.temperature = temperature,
-        this.icon = icon
+        this.icon = icon,
+        this.humidity = humidity
     }
 }
 
@@ -271,6 +275,7 @@ function displayForecast() {
         let iconEl = document.createElement('img');
         let weatherEl = document.createElement('p');
         let temperatureEl = document.createElement('p');
+        let humidityEl = document.createElement('p');
 
         // icon image url
         let forecastIcon = "https://openweathermap.org/img/wn/" + forecast.icon + "@2x.png";
@@ -280,9 +285,10 @@ function displayForecast() {
         iconEl.setAttribute('src', forecastIcon);
         weatherEl.innerHTML = forecast.weather;
         temperatureEl.innerHTML = forecast.temperature;
+        humidityEl.textContent = forecast.humidity;
 
         // append to parent and screen
-        dayEl.append(dateEl, iconEl, weatherEl, temperatureEl);
+        dayEl.append(dateEl, iconEl, weatherEl, temperatureEl, humidityEl);
         forecastDataContainer.append(dayEl);
     });
 }
